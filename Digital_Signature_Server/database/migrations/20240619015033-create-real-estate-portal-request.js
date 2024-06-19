@@ -2,30 +2,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('RealEstatePortalRequests', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      firstName: {
+      name: {
         type: Sequelize.STRING
       },
-      lastName: {
+      data: {
         type: Sequelize.STRING
       },
-      middleName: {
-        type: Sequelize.STRING
-      },
-      organization: {
-        type: Sequelize.STRING
-      },
-      email: {
-        type: Sequelize.STRING
-      },
-      password: {
-        type: Sequelize.STRING
+      reqStatus: {
+        // fill it as you want
+        type: Sequelize.ENUM('pending', 'approved', 'rejected')
       },
       createdAt: {
         allowNull: false,
@@ -38,6 +30,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('RealEstatePortalRequests');
   }
 };
