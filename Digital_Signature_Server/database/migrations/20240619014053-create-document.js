@@ -11,9 +11,11 @@ module.exports = {
       },
       fileName: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       file: {
         type: Sequelize.TEXT,
+        allowNull: false,
       },
       fileType: {
         type: Sequelize.ENUM(

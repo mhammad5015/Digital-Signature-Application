@@ -18,12 +18,15 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
+        onDelete: "CASCADE",
       },
       image_frontSide: {
         type: Sequelize.TEXT,
+        allowNull: false,
       },
       image_backSide: {
         type: Sequelize.TEXT,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

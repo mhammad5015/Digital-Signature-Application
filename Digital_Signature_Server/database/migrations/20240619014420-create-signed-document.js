@@ -18,10 +18,11 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
+        onDelete: "CASCADE",
       },
       signingStatus: {
         // fill it
-        type: Sequelize.ENUM('pending', 'processing', 'completed'),
+        type: Sequelize.ENUM("pending", "processing", "completed"),
       },
       createdAt: {
         allowNull: false,

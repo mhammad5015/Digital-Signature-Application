@@ -18,27 +18,35 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
+        onDelete: 'CASCADE'
       },
       version: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       serialNumber: {
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       signatureAlgorithm: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       issuer: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       validatePeriod: {
         type: Sequelize.DATE,
+        allowNull: false,
       },
       subject: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       ca_signature: {
         type: Sequelize.TEXT,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

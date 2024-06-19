@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Admin.hasMany(models.RealEstatePortalRequest, {foreignKey: 'admin_id'})
     }
   }
   Admin.init({

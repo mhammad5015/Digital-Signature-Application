@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      SignedDocument.hasMany(models.VariousParties, {foreignKey: 'signedDocument_id'})
     }
   }
   SignedDocument.init({

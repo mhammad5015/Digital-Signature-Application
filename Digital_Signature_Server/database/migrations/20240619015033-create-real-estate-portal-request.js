@@ -1,35 +1,59 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('RealEstatePortalRequests', {
+    await queryInterface.createTable("RealEstatePortalRequests", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+      },
+      admin_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "Admins",
+          },
+          key: "id",
+        },
+        allowNull: false,
+        onDelete: "CASCADE",
+      },
+      govermentOfficial_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "GovermentOfficials",
+          },
+          key: "id",
+        },
+        allowNull: false,
+        onDelete: "CASCADE",
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       data: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       reqStatus: {
         // fill it as you want
-        type: Sequelize.ENUM('pending', 'approved', 'rejected')
+        type: Sequelize.ENUM("pending", "approved", "rejected"),
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('RealEstatePortalRequests');
-  }
+    await queryInterface.dropTable("RealEstatePortalRequests");
+  },
 };
