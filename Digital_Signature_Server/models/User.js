@@ -9,12 +9,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      User.hasOne(models.DigitalCertificate, { foreignKey: "user_id" });
+      User.hasOne(models.PublicKey, { foreignKey: "user_id" });
+      User.hasMany(models.UserIDImage, {foreignKey: "user_id" });
+      User.hasMany(models.VariousParties, {foreignKey: "user_id" });
     }
   }
   User.init(
     {
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
+      middleName: DataTypes.STRING,
+      organization: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
     },

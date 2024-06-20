@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("GovermentOfficials", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -30,10 +30,6 @@ module.exports = {
         },
         allowNull: false,
       },
-      organization: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       email: {
         type: Sequelize.STRING,
         validate: {
@@ -56,6 +52,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("GovermentOfficials");
   },
 };

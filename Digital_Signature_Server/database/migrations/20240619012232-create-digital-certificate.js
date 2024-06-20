@@ -2,47 +2,50 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Users", {
+    await queryInterface.createTable("DigitalCertificates", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      firstName: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "Users",
+          },
+          key: "id",
         },
         allowNull: false,
+        onDelete: 'CASCADE'
       },
-      middleName: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
-        allowNull: false,
-      },
-      lastName: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
-        allowNull: false,
-      },
-      organization: {
+      version: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING,
-        validate: {
-          isEmail: true,
-        },
+      serialNumber: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
-      password: {
+      signatureAlgorithm: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      issuer: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      validatePeriod: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      subject: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      ca_signature: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       createdAt: {
@@ -56,6 +59,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Users");
+    await queryInterface.dropTable("DigitalCertificates");
   },
 };
