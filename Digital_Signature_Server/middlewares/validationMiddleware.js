@@ -2,9 +2,24 @@ const { validationResult, check } = require("express-validator");
 const models = require("../models/index");
 
 const registerValidation = [
-  check("firstName", "First name is required").trim().notEmpty(),
-  check("lastName", "Last name is required").trim().notEmpty(),
-  check("email")
+  check("firstName", "First name is required")
+    .trim()
+    .notEmpty()
+    .isLength({ max: 30 })
+    .withMessage("The Name too Long"),
+  check("middleName", "Middle name is required")
+    .trim()
+    .notEmpty()
+    .isLength({ max: 30 })
+    .withMessage("The Name too Long"),
+  check("lastName", "Last name is required")
+    .trim()
+    .notEmpty()
+    .isLength({ max: 30 })
+    .withMessage("The Name too Long"),
+  check("organization", "Organization is required").trim().notEmpty(),
+  check("email", "Email field is required")
+    .notEmpty()
     .isEmail()
     .withMessage("Please enter a valid email address")
     .custom((value) => {
@@ -12,7 +27,7 @@ const registerValidation = [
         (userDoc) => {
           if (userDoc) {
             return Promise.reject(
-              "email already exists, please pick a different one"
+              "Email already exists, please pick a different one"
             );
           }
         }
@@ -48,7 +63,7 @@ const loginValidation = [
     .notEmpty()
     .isEmail()
     .withMessage("Please enter a valid email address"),
-  check("password", "Password Required")
+  check("password", "Password is Required")
     .trim()
     .notEmpty()
     .isLength({ min: 6 })

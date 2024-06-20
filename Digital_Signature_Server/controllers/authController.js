@@ -3,13 +3,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, middleName, lastName, organization, email, password } = req.body;
   bcrypt
     .hash(password, 12)
     .then((hashedPass) => {
       let userData = {
         firstName: firstName,
         lastName: lastName,
+        middleName: middleName,
+        organization: organization,
         email: email,
         password: hashedPass,
       };
