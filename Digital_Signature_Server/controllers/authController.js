@@ -2,6 +2,30 @@ const models = require("../models/index");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+/*
+const multer = require("multer");
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/storage/images");
+  },
+  filename: (req, file, callback) => {
+    cb(null, new Date().toISOString() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg" ||
+    file.mimeype === "image/png"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+multer({ storage: fileStorage, fileFilter: fileFilter }).single("file")
+*/
 exports.register = async (req, res, next) => {
   const { firstName, middleName, lastName, organization, email, password } = req.body;
   bcrypt
