@@ -1,21 +1,36 @@
 const models = require("../models/index");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 exports.register = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, middleName, lastName, organization, email, password } =
+    req.body;
   bcrypt
     .hash(password, 12)
     .then((hashedPass) => {
       let userData = {
         firstName: firstName,
         lastName: lastName,
+        middleName: middleName,
+        organization: organization,
         email: email,
         password: hashedPass,
       };
       return models.User.create(userData);
     })
-    .then((user) => {
+    .then(async (user) => {
+      const images = await models.UserIDImage.create({
+        user_id: user.id,
+        image_frontSide: path.relative(
+          "public",
+          req.files.image_frontSide[0].path
+        ),
+        image_backSide: path.relative(
+          "public",
+          req.files.image_backSide[0].path
+        ),
+      });
       let token = jwt.sign(
         { id: user.id, email: user.email },
         process.env.JWT_SECRET_KEY,
@@ -24,6 +39,7 @@ exports.register = async (req, res, next) => {
       res.json({
         message: "user created successfully",
         data: user,
+        images: images,
         token: token,
       });
     })

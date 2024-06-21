@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   SignedDocument.init({
-    signingStatus: DataTypes.ENUM
+    signingStatus: DataTypes.ENUM("pending", "processing", "completed")
   }, {
     sequelize,
     modelName: 'SignedDocument',
