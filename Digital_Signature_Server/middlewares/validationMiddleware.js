@@ -1,5 +1,6 @@
 const { validationResult, check } = require("express-validator");
 const models = require("../models/index");
+const fs = require("fs");
 
 const registerValidation = [
   check("firstName", "First name is required")
@@ -51,6 +52,36 @@ const registerValidation = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // If There Is Some Error then delete the uploaded files
+      if (req.files) {
+        /* 
+        // upload.array()
+        req.files.forEach((file) => {
+          fs.unlink(file.path, (err) => {
+            console.log(`## Successfully Deleted: ${file.path}`)
+          });
+        });
+        */
+        /*
+        // upload.single()
+        fs.unlink(req.file.path, (err) => {
+          console.log(`## Successfully Deleted: ${req.file.path}`);
+        });
+        */
+        // upload.fields()
+        if (req.files.image_frontSide && req.files.image_frontSide[0]) {
+          fs.unlink(req.files.image_frontSide[0].path, (unlinkErr) => {
+            if (unlinkErr)
+              console.error("Failed to delete front side image:", unlinkErr);
+          });
+        }
+        if (req.files.image_backSide && req.files.image_backSide[0]) {
+          fs.unlink(req.files.image_backSide[0].path, (unlinkErr) => {
+            if (unlinkErr)
+              console.error("Failed to delete back side image:", unlinkErr);
+          });
+        }
+      }
       return res.status(400).json(errors);
     }
     next();
@@ -58,7 +89,7 @@ const registerValidation = [
 ];
 
 const loginValidation = [
-  check("email", "Email Address Is Required")
+  check("email", "Email field is required")
     .trim()
     .notEmpty()
     .isEmail()
