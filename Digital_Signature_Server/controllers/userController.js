@@ -1,4 +1,5 @@
 const models = require("../models/index");
+const path = require("path");
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -15,4 +16,11 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.addHello = (req, res, next) => {
   res.json({ message: "Hello" });
+};
+
+exports.uploadDocument = (req, res, next) => {
+  res.json({
+    message: "file uploaded successfully",
+    path: path.relative("public", req.file.path),
+  });
 };
