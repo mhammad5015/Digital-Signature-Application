@@ -16,15 +16,15 @@ module.exports = (sequelize, DataTypes) => {
     {
       fileName: DataTypes.STRING,
       file: DataTypes.TEXT,
-      fileType: DataTypes.ENUM(
-        "pdf",
-        "docs",
-        "txt",
-        "png",
-        "jpg",
-        "jpeg",
-        "tiff"
-      ),
+      // fileType: DataTypes.ENUM(
+      //   "pdf",
+      //   "docs",
+      //   "txt",
+      //   "png",
+      //   "jpg",
+      //   "jpeg",
+      //   "tiff"
+      // ),
       // status: DataTypes.ENUM
     },
     {

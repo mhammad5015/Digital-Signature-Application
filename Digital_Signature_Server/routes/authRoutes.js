@@ -7,16 +7,7 @@ const multer = require("../util/multer");
 // routes:
 router.post(
   "/user/register",
-  multer.uploadImage.fields([
-    {
-      name: "image_frontSide",
-      maxCount: 1,
-    },
-    {
-      name: "image_backSide",
-      maxCount: 1,
-    },
-  ]),
+  multer.uploadImage.none(),
   Validator.registerValidation,
   authController.register
 );
