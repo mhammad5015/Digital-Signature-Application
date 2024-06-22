@@ -8,7 +8,7 @@ const multer = require("../util/multer");
 // routes:
 router.post(
   "/user/register",
-  multer.uploadImage.none(),
+  // multer.uploadImage.none(),
   Validator.registerValidation,
   authController.register
 );
