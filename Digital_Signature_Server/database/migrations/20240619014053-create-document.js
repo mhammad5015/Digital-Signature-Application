@@ -17,17 +17,17 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      fileType: {
-        type: Sequelize.ENUM(
-          "pdf",
-          "docs",
-          "txt",
-          "png",
-          "jpg",
-          "jpeg",
-          "tiff"
-        ),
-      },
+      // fileType: {
+      //   type: Sequelize.ENUM(
+      //     "pdf",
+      //     "docs",
+      //     "txt",
+      //     "png",
+      //     "jpg",
+      //     "jpeg",
+      //     "tiff"
+      //   ),
+      // },
       // status: {
       //   type: Sequelize.ENUM("inbox", "draft", "sent", "deleted"),
       // },

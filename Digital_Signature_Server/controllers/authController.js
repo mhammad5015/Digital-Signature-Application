@@ -6,46 +6,30 @@ const path = require("path");
 exports.register = async (req, res, next) => {
   const { firstName, middleName, lastName, organization, email, password } =
     req.body;
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPass) => {
-      let userData = {
-        firstName: firstName,
-        lastName: lastName,
-        middleName: middleName,
-        organization: organization,
-        email: email,
-        password: hashedPass,
-      };
-      return models.User.create(userData);
-    })
-    .then(async (user) => {
-      const images = await models.UserIDImage.create({
-        user_id: user.id,
-        image_frontSide: path.relative(
-          "public",
-          req.files.image_frontSide[0].path
-        ),
-        image_backSide: path.relative(
-          "public",
-          req.files.image_backSide[0].path
-        ),
-      });
-      let token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: "1h" }
-      );
-      res.json({
-        message: "user created successfully",
-        data: user,
-        images: images,
-        token: token,
-      });
-    })
-    .catch((err) => {
-      res.status(400).json({ message: err });
+  try {
+    const hashedPass = await bcrypt.hash(password, 12);
+    let userData = {
+      firstName: firstName,
+      lastName: lastName,
+      middleName: middleName,
+      organization: organization,
+      email: email,
+      password: hashedPass,
+    };
+    const user = await models.User.create(userData);
+    let token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+    res.json({
+      message: "user created successfully",
+      data: user,
+      token: token,
     });
+  } catch (err) {
+    res.status(400).json({ message: err });
+  }
 };
 
 exports.login = (req, res, next) => {
