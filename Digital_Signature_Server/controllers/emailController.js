@@ -1,7 +1,9 @@
 const nodemailer = require("nodemailer");
 const models = require("../models/index");
 const jwt = require("jsonwebtoken");
+const EmailVerification = require("../models/emailverification");
 const { promisify } = require("util");
+const { where, DATE } = require("sequelize");
 
 function generateCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -51,19 +53,19 @@ D.Signature`,
         console.error("Command:", error.command);
         return res.status(500).json({ message: "Failed to send email" });
       } else {
-        console.log("Email sent:", info.response);
-        
         var authorization = req.headers.authorization.split(" ")[1];
         var decoded;
+        console.log(decoded);
         try {
-          decoded = jwt.verify(authorization, secret.secretToken);
+          decoded = jwt.verify(authorization, process.env.JWT_SECRET_KEY);
         } catch (e) {
           return res.status(401).send("Unauthorized");
         }
 
-        var userId = decoded.id;
+        console.log("Email sent:", info.response);
 
         try {
+          var userId = decoded.id;
           await models.EmailVerification.create({
             user_id: userId,
             verificationCode: code,
@@ -111,5 +113,50 @@ exports.sendSigningEmail = async (req, res, next) => {
     });
   } catch (err) {
     res.status(400).json({ message: err });
+  }
+};
+
+exports.verify = async (req, res, next) => {
+  var authorization = req.headers.authorization.split(" ")[1];
+  var decoded;
+  console.log(decoded);
+  try {
+    decoded = jwt.verify(authorization, process.env.JWT_SECRET_KEY);
+  } catch (e) {
+    return res.status(401).send("Unauthorized");
+  }
+  const { verifyCode } = req.body;
+
+  try {
+    var userId = decoded.id;
+    var code = await models.EmailVerification.findOne({
+      where: { user_id: userId },
+    });
+    const currentTime = new Date();
+    const diffTime =
+      currentTime.getHours() * 60 +
+      currentTime.getMinutes() -
+      (new Date(code.createdAt).getHours() * 60 +
+        new Date(code.createdAt).getMinutes());
+    console.log(code.verificationCode);
+    if (verifyCode === code.verificationCode && diffTime <= 30) {
+      return res.json({
+        message: "success verification",
+        status: 200,
+      });
+    } else if (verifyCode === code.verificationCode && diffTime > 30) {
+      await code.destroy();
+      return res.json({
+        message: "validity of the verification code expired",
+        status: 422,
+      });
+    } else {
+      return res.json({
+        message: "wrong code input",
+        status: 422,
+      });
+    }
+  } catch (err) {
+    console.log(err);
   }
 };

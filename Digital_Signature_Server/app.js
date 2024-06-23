@@ -13,9 +13,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Importing Routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const emailRoutes = require("./routes/emailRoutes");
 
 // Using Routes
 app.use(authRoutes);
 app.use(userRoutes);
+app.use(emailRoutes);
 
 app.listen(port, "localhost", () => console.log("listening on port " + port));
