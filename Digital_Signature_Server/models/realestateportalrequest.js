@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   RealEstatePortalRequest.init({
     name: DataTypes.STRING,
     data: DataTypes.STRING,
-    reqStatus: DataTypes.ENUM
+    reqStatus: DataTypes.ENUM("pending", "approved", "rejected")
   }, {
     sequelize,
     modelName: 'RealEstatePortalRequest',

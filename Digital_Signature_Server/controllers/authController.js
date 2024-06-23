@@ -1,35 +1,35 @@
 const models = require("../models/index");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const path = require("path");
 
 exports.register = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPass) => {
-      let userData = {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: hashedPass,
-      };
-      return models.User.create(userData);
-    })
-    .then((user) => {
-      let token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: "1h" }
-      );
-      res.json({
-        message: "user created successfully",
-        data: user,
-        token: token,
-      });
-    })
-    .catch((err) => {
-      res.status(400).json({ message: err });
+  const { firstName, middleName, lastName, organization, email, password } =
+    req.body;
+  try {
+    const hashedPass = await bcrypt.hash(password, 12);
+    let userData = {
+      firstName: firstName,
+      lastName: lastName,
+      middleName: middleName,
+      organization: organization,
+      email: email,
+      password: hashedPass,
+    };
+    const user = await models.User.create(userData);
+    let token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+    res.json({
+      message: "user created successfully",
+      data: user,
+      token: token,
     });
+  } catch (err) {
+    res.status(400).json({ message: err });
+  }
 };
 
 exports.login = (req, res, next) => {

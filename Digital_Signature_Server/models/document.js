@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Document extends Model {
     /**
@@ -11,17 +9,28 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Document.hasMany(models.SignedDocument, {foreignKey: 'document_id'});
+      Document.hasMany(models.SignedDocument, { foreignKey: "document_id" });
     }
   }
-  Document.init({
-    fileName: DataTypes.STRING,
-    file: DataTypes.TEXT,
-    fileType: DataTypes.ENUM,
-    // status: DataTypes.ENUM
-  }, {
-    sequelize,
-    modelName: 'Document',
-  });
+  Document.init(
+    {
+      fileName: DataTypes.STRING,
+      file: DataTypes.TEXT,
+      // fileType: DataTypes.ENUM(
+      //   "pdf",
+      //   "docs",
+      //   "txt",
+      //   "png",
+      //   "jpg",
+      //   "jpeg",
+      //   "tiff"
+      // ),
+      // status: DataTypes.ENUM
+    },
+    {
+      sequelize,
+      modelName: "Document",
+    }
+  );
   return Document;
 };
