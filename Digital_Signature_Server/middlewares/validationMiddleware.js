@@ -88,7 +88,7 @@ const userRegisterValidation = [
   },
 ];
 
-const uaerLoginValidation = [
+const userLoginValidation = [
   check("email", "Email field is required")
     .trim()
     .notEmpty()
@@ -130,6 +130,6 @@ const adminLoginValidation = [
 
 module.exports = {
   userRegisterValidation,
-  uaerLoginValidation,
+  userLoginValidation,
   adminLoginValidation,
 };
