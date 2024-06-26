@@ -1,6 +1,6 @@
 const models = require("../models/index");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+  const jwt = require("jsonwebtoken");
 const path = require("path");
 
 exports.register = async (req, res, next) => {
