@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const isAuthed = require("../middlewares/authMiddleware");
+const isUser = require("../middlewares/userAuthMiddleware");
 const multer = require("../util/multer");
 
-router.get("/getAllUsers", isAuthed, userController.getAllUsers);
 
 router.post(
   "/user/uploadIdImages",
-  isAuthed,
+  isUser,
   multer.uploadImage.fields([
     {
       name: "image_frontSide",
@@ -23,7 +22,7 @@ router.post(
 );
 router.post(
   "/user/uploadDocument",
-  isAuthed,
+  isUser,
   multer.uploadDocument.single("file"),
   userController.uploadDocument
 );

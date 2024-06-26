@@ -7,11 +7,20 @@ const multer = require("../util/multer");
 // routes:
 router.post(
   "/user/register",
-  multer.uploadImage.none(),
-  Validator.registerValidation,
-  authController.register
+  // multer.uploadImage.none(),
+  Validator.userRegisterValidation,
+  authController.userRegister
+);
+router.post(
+  "/user/login",
+  Validator.uaerLoginValidation,
+  authController.userLogin
 );
 
-router.post("/user/login", Validator.loginValidation, authController.login);
+router.post(
+  "/admin/login",
+  Validator.adminLoginValidation,
+  authController.adminLogin
+);
 
 module.exports = router;
