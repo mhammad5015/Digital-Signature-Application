@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const isUser = require("../middlewares/userAuthMiddleware");
 const multer = require("../util/multer");
-
+const Validator = require("../middlewares/validators/userValidationMiddleware");
 
 router.post(
   "/user/uploadIdImages",
@@ -18,12 +18,15 @@ router.post(
       maxCount: 1,
     },
   ]),
+  Validator.uploadIdImages,
   userController.uploadIdImages
 );
+
 router.post(
   "/user/uploadDocument",
   isUser,
   multer.uploadDocument.single("file"),
+  Validator.uploadDocument,
   userController.uploadDocument
 );
 

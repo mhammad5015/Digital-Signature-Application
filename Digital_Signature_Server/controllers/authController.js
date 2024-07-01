@@ -81,6 +81,7 @@ exports.adminLogin = async (req, res, next) => {
     const payload = {
       id: admin.id,
       email: admin.email,
+      password: admin.password,
     };
     let token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
       expiresIn: "1h",

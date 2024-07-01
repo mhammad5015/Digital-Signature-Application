@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const emailController = require("../controllers/emailController");
-const auth = require("../middlewares/authMiddleware");
 
 router.post("/email/sendVerify", emailController.sendVerificationEmail);
 
