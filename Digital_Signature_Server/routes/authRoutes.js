@@ -8,11 +8,20 @@ const multer = require("../util/multer");
 router.post(
   "/user/register",
   // multer.uploadImage.none(),
-  Validator.registerValidation,
-  authController.register
+  Validator.userRegisterValidation,
+  authController.userRegister
+);
+router.post(
+  "/user/login",
+  Validator.userLoginValidation,
+  authController.userLogin
 );
 
-router.post("/user/login", Validator.loginValidation, authController.login);
+router.post(
+  "/admin/login",
+  Validator.adminLoginValidation,
+  authController.adminLogin
+);
 
 
 

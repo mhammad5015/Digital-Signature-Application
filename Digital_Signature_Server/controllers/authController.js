@@ -1,9 +1,10 @@
 const models = require("../models/index");
 const bcrypt = require("bcryptjs");
-  const jwt = require("jsonwebtoken");
+const { log } = require("console");
+const jwt = require("jsonwebtoken");
 const path = require("path");
 
-exports.register = async (req, res, next) => {
+exports.userRegister = async (req, res, next) => {
   const { firstName, middleName, lastName, organization, email, password } =
     req.body;
   try {
@@ -32,29 +33,27 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = (req, res, next) => {
+exports.userLogin = (req, res, next) => {
   const { email, password } = req.body;
   models.User.findOne({ where: { email: email } })
     .then((user) => {
       if (!user) {
-        const error = new Error("email not found");
-        error.statusCode = 401;
-        throw error;
+        res.status(400).json({ message: "user not found" });
       }
       return bcrypt.compare(password, user.password).then((isEqual) => {
         if (!isEqual) {
-          const error = new Error("Wrong Password");
-          error.statusCode = 401;
-          throw error;
+          res.status(400).json({ message: "wrong password" });
         }
         let payload = {
           id: user.id,
           email: user.email,
+          password: user.password,
         };
-        let jwtSecretKey = process.env.JWT_SECRET_KEY;
-        let token = jwt.sign(payload, jwtSecretKey, { expiresIn: "1h" });
+        let token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+          expiresIn: "1h",
+        });
         res.status(200).json({
-          message: "logged in successfully",
+          message: "User logged in successfully",
           data: user,
           token: token,
         });
@@ -66,4 +65,32 @@ exports.login = (req, res, next) => {
       }
       next(err);
     });
+};
+
+exports.adminLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await models.Admin.findOne({ where: { email: email } });
+    if (!admin) {
+      return res.status(400).json({ message: "Admin not found" });
+    }
+    const isEqual = await bcrypt.compare(password, admin.password);
+    if (!isEqual) {
+      return res.status(400).json({ message: "Wrong password" });
+    }
+    const payload = {
+      id: admin.id,
+      email: admin.email,
+    };
+    let token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    res.status(200).json({
+      message: "Admin logged in successfully",
+      data: admin,
+      token: token,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

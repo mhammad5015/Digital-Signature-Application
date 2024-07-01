@@ -2,7 +2,7 @@ const { validationResult, check } = require("express-validator");
 const models = require("../models/index");
 const fs = require("fs");
 
-const registerValidation = [
+const userRegisterValidation = [
   check("firstName", "First name is required")
     .trim()
     .notEmpty()
@@ -88,7 +88,7 @@ const registerValidation = [
   },
 ];
 
-const loginValidation = [
+const userLoginValidation = [
   check("email", "Email field is required")
     .trim()
     .notEmpty()
@@ -108,4 +108,28 @@ const loginValidation = [
   },
 ];
 
-module.exports = { registerValidation, loginValidation };
+const adminLoginValidation = [
+  check("email", "Email field is required")
+    .trim()
+    .notEmpty()
+    .isEmail()
+    .withMessage("Please enter a valid email address"),
+  check("password", "password field is required")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors);
+    }
+    next();
+  },
+];
+
+module.exports = {
+  userRegisterValidation,
+  userLoginValidation,
+  adminLoginValidation,
+};
