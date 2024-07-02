@@ -7,7 +7,6 @@ const multer = require("../util/multer");
 // routes:
 router.post(
   "/user/register",
-  // multer.uploadImage.none(),
   Validator.userRegisterValidation,
   authController.userRegister
 );
@@ -22,7 +21,5 @@ router.post(
   Validator.adminLoginValidation,
   authController.adminLogin
 );
-
-
 
 module.exports = router;
