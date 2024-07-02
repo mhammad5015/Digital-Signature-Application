@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const mysql = require("mysql2");
+const rateLimiter = require("./middlewares/rateLimiterMiddleware");
 require("dotenv").config();
 
 const app = express();
@@ -9,6 +10,7 @@ const port = process.env.PORT;
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(rateLimiter);
 
 // Importing Routes
 const authRoutes = require("./routes/authRoutes");
