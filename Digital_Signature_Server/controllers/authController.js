@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const { log } = require("console");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const CustomError = require("../util/CustomError");
 
 exports.userRegister = async (req, res, next) => {
   const { firstName, middleName, lastName, organization, email, password } =
@@ -40,10 +41,9 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const admin = await models.Admin.findOne({ where: { email: email } });
     if (admin) {
-      // return res.status(400).json({ message: "Admin not found" });
       const isEqual = await bcrypt.compare(password, admin.password);
       if (!isEqual) {
-        return res.status(400).json({ message: "Wrong password" });
+        throw new CustomError("Wrong password", 400);
       }
       const payload = {
         id: admin.id,
@@ -61,11 +61,11 @@ exports.login = async (req, res, next) => {
     // CHECK IF USER
     let user = await models.User.findOne({ where: { email: email } });
     if (!user) {
-      return res.status(400).json({ message: "user not found" });
+      throw new CustomError("User not found", 400);
     }
     let isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      return res.status(400).json({ message: "wrong password" });
+      throw new CustomError("Wrong password", 400);
     }
     let payload = {
       id: user.id,
@@ -79,7 +79,7 @@ exports.login = async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       middleName: user.middleName,
-      organization: user.organization,
+      owrganization: user.organization,
       email: user.email,
       password: user.password,
       role: "user",
@@ -91,7 +91,7 @@ exports.login = async (req, res, next) => {
       data: resData,
       token: token,
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };

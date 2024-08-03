@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const EmailVerification = require("../models/emailverification");
 const { promisify } = require("util");
 const { where, DATE } = require("sequelize");
+const CustomError = require("../util/CustomError");
 
 function generateCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -47,11 +48,12 @@ D.Signature`,
   try {
     await sendMail(mailOptions, async (error, info) => {
       if (error) {
-        console.error("Error sending email:", error);
-        console.error("Response:", error.response);
-        console.error("Response Code:", error.responseCode);
-        console.error("Command:", error.command);
-        return res.status(500).json({ message: "Failed to send email" });
+        // console.error("Error sending email:", error);
+        // console.error("Response:", error.response);
+        // console.error("Response Code:", error.responseCode);
+        // console.error("Command:", error.command);
+        // return res.status(500).json({ message: "Failed to send email" });
+        throw new CustomError(error.message, 500);
       } else {
         var authorization = req.headers.authorization.split(" ")[1];
         var decoded;
@@ -59,7 +61,9 @@ D.Signature`,
         try {
           decoded = jwt.verify(authorization, process.env.JWT_SECRET_KEY);
         } catch (e) {
-          return res.status(401).send("Unauthorized");
+          // return res.status(401).send("Unauthorized");
+          const err = new CustomError("Unauthorized", 401);
+          next(err);
         }
 
         console.log("Email sent:", info.response);
@@ -72,16 +76,22 @@ D.Signature`,
           });
           return res.json({ message: "Email sent successfully" });
         } catch (modelError) {
-          console.error("Error saving verification code:", modelError);
-          return res
-            .status(500)
-            .json({ message: "Failed to save verification code" });
+          // console.error("Error saving verification code:", modelError);
+          // return res
+          //   .status(500)
+          //   .json({ message: "Failed to save verification code" });
+          const error = new CustomError(
+            "Failed to save verification code",
+            500
+          );
+          next(error);
         }
       }
     });
   } catch (err) {
-    console.error("Unexpected error:", err);
-    return res.status(500).json({ message: "An unexpected error occurred" });
+    // console.error("Unexpected error:", err);
+    // return res.status(500).json({ message: "An unexpected error occurred" });
+    next(err);
   }
 };
 
@@ -112,7 +122,8 @@ exports.sendSigningEmail = async (req, res, next) => {
       message: "email sent successfully",
     });
   } catch (err) {
-    res.status(400).json({ message: err });
+    // res.status(400).json({ message: err });
+    next(err);
   }
 };
 
@@ -123,7 +134,8 @@ exports.verify = async (req, res, next) => {
   try {
     decoded = jwt.verify(authorization, process.env.JWT_SECRET_KEY);
   } catch (e) {
-    return res.status(401).send("Unauthorized");
+    // return res.status(401).send("Unauthorized");
+    const err = new CustomError("Unauthorized", 401);
   }
   const { verifyCode } = req.body;
 
@@ -157,6 +169,6 @@ exports.verify = async (req, res, next) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 };

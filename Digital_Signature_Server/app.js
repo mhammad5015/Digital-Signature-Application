@@ -4,6 +4,7 @@ const path = require("path");
 const mysql = require("mysql2");
 const rateLimiter = require("./middlewares/rateLimiterMiddleware");
 require("dotenv").config();
+const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
 const port = process.env.PORT;
@@ -23,5 +24,7 @@ app.use(authRoutes);
 app.use(userRoutes);
 app.use(adminRoutes);
 app.use(emailRoutes);
+
+app.use(globalErrorHandler);
 
 app.listen(port, "localhost", () => console.log("listening on port " + port));

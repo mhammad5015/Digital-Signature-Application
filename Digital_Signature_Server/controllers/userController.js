@@ -1,10 +1,11 @@
 const models = require("../models/index");
 const path = require("path");
+const CustomError = require("../util/CustomError");
 
 exports.uploadIdImages = async (req, res, next) => {
   try {
     if (!req.user) {
-      throw new Error("user is not set");
+      throw new CustomError("user is not set", 400);
     }
     let user_image = await models.UserIDImage.create({
       user_id: req.user.id,
@@ -19,7 +20,7 @@ exports.uploadIdImages = async (req, res, next) => {
       data: user_image,
     });
   } catch (err) {
-    res.status(400).json({ message: err });
+    next(err);
   }
 };
 
@@ -34,6 +35,6 @@ exports.uploadDocument = async (req, res, next) => {
       data: doc,
     });
   } catch (err) {
-    res.status(400).json({ message: err });
+    next(err);
   }
 };

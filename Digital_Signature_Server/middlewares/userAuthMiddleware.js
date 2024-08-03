@@ -1,34 +1,41 @@
 const jwt = require("jsonwebtoken");
 const models = require("../models/index");
+const CustomError = require("../util/CustomError");
 
 module.exports = (req, res, next) => {
-  let authHeader = req.get("Authorization");
-  if (!authHeader) {
-    return res
-      .status(401)
-      .json({ error: "Authorization header is missing. Access is denied." });
-  }
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res
-      .status(401)
-      .json({ error: "Bearer token is missing. Access is denied." });
-  }
-  jwt.verify(token, process.env.JWT_SECRET_KEY, async (error, user) => {
-    if (error) {
-      return res
-        .status(403)
-        .json({ error: "Invalid or expired token. Access is forbidden." });
+  try {
+    let authHeader = req.get("Authorization");
+    if (!authHeader) {
+      throw new CustomError(
+        "Authorization header is missing. Access is denied.",
+        401
+      );
     }
-    const isUser = await models.User.findOne({
-      where: { id: user.id, firstName: user.firstName },
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      throw new CustomError("Bearer token is missing. Access is denied.", 401);
+    }
+    jwt.verify(token, process.env.JWT_SECRET_KEY, async (error, user) => {
+      try {
+        if (error) {
+          throw new CustomError(
+            "Invalid or expired token. Access is forbidden.",
+            403
+          );
+        }
+        const isUser = await models.User.findOne({
+          where: { id: user.id, firstName: user.firstName },
+        });
+        if (!isUser) {
+          throw new CustomError("Invalid token. Access is forbidden.", 403);
+        }
+        req.user = user;
+        next();
+      } catch (err) {
+        next(err);
+      }
     });
-    if (!isUser) {
-      return res
-        .status(403)
-        .json({ error: "Invalid token. Access is forbidden." });
-    }
-    req.user = user;
-    next();
-  });
+  } catch (err) {
+    next(err);
+  }
 };
