@@ -21,7 +21,7 @@ module.exports = (req, res, next) => {
         .json({ error: "Invalid or expired token. Access is forbidden." });
     }
     const isAdmin = await models.Admin.findOne({
-      where: { email: admin.email, password: admin.password },
+      where: { id: admin.id, firstNAme: admin.firstName , role: "admin"},
     });
     if (!isAdmin) {
       return res
