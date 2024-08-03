@@ -1,4 +1,5 @@
 const models = require("../models/index");
+const CustomError = require("../util/CustomError");
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -8,7 +9,7 @@ exports.getAllUsers = async (req, res, next) => {
     } else {
       res.status(200).json({ message: "There Is No Users", data: userData });
     }
-  } catch (error) {
-    res.status(404).json({ message: error });
+  } catch (err) {
+    next(err);
   }
 };
