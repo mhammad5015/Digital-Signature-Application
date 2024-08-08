@@ -5,6 +5,7 @@ const mysql = require("mysql2");
 const rateLimiter = require("./middlewares/rateLimiterMiddleware");
 require("dotenv").config();
 const globalErrorHandler = require("./controllers/errorController");
+const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT;
@@ -12,6 +13,11 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(rateLimiter);
+app.use(
+  cors({
+    origin: "http://localhost:5137",
+  })
+);
 
 // Importing Routes
 const authRoutes = require("./routes/authRoutes");
