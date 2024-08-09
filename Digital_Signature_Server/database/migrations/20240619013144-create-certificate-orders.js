@@ -2,44 +2,46 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("GovermentOfficials", {
+    await queryInterface.createTable("CertificateOrders", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      firstName: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
+      user_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "Users",
+          },
+          key: "id",
         },
         allowNull: false,
+        onDelete: "CASCADE",
       },
-      middleName: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
+      image_frontSide: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
-      lastName: {
+      fullName: {
         type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
         allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING,
-        validate: {
-          isEmail: true,
-        },
+      nationalNumber: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
-      password: {
-        type: Sequelize.STRING,
+      // fingerPrint: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: false,
+      // },
+      image_backSide: {
+        type: Sequelize.TEXT,
         allowNull: false,
+      },
+      reqStatus: {
+        type: Sequelize.ENUM("pending", "approved", "rejected"),
       },
       createdAt: {
         allowNull: false,
@@ -52,6 +54,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("GovermentOfficials");
+    await queryInterface.dropTable("CertificateOrders");
   },
 };

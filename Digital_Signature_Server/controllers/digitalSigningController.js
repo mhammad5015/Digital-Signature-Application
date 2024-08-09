@@ -1,4 +1,10 @@
 const forge = require("node-forge");
+const crypto = require('crypto');
+const fs = require('fs');
+
+function sha256(input) {
+    return crypto.createHash('sha256').update(input).digest('hex');
+}
 
 function forgeBigIntegerToBigInt(forgeBigInt) {
   return BigInt("0x" + forgeBigInt.toString(16));
@@ -139,3 +145,11 @@ exports.decryptionRSA = (req, res, next) => {
   const message = decryptionCiphertext(ciphertext, privateKey);
   res.send({ message: message.toString() });
 };
+
+
+
+
+
+
+
+

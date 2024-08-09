@@ -1,40 +1,8 @@
 const models = require("../models/index");
 const path = require("path");
+const CustomError = require("../util/CustomError");
 
-exports.getAllUsers = async (req, res, next) => {
-  try {
-    const userData = await models.User.findAll();
-    if (userData.length > 0) {
-      res.status(200).json({ message: "Success", data: userData });
-    } else {
-      res.status(200).json({ message: "There Is No Users", data: userData });
-    }
-  } catch (error) {
-    res.status(404).json({ message: error });
-  }
-};
 
-exports.uploadIdImages = async (req, res, next) => {
-  try {
-    if (!req.user) {
-      throw new Error("user is not set");
-    }
-    let user_image = await models.UserIDImage.create({
-      user_id: req.user.id,
-      image_frontSide: path.relative(
-        "public",
-        req.files.image_frontSide[0].path
-      ),
-      image_backSide: path.relative("public", req.files.image_backSide[0].path),
-    });
-    res.status(200).json({
-      message: "images successfully uploaded",
-      data: user_image,
-    });
-  } catch (err) {
-    res.status(400).json({ message: err });
-  }
-};
 
 exports.uploadDocument = async (req, res, next) => {
   try {
@@ -47,6 +15,6 @@ exports.uploadDocument = async (req, res, next) => {
       data: doc,
     });
   } catch (err) {
-    res.status(400).json({ message: err });
+    next(err);
   }
 };

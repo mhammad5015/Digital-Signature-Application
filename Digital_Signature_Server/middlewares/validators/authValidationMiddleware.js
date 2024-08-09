@@ -1,8 +1,8 @@
 const { validationResult, check } = require("express-validator");
-const models = require("../models/index");
+const models = require("../../models/index");
 const fs = require("fs");
 
-const registerValidation = [
+const userRegisterValidation = [
   check("firstName", "First name is required")
     .trim()
     .notEmpty()
@@ -88,7 +88,7 @@ const registerValidation = [
   },
 ];
 
-const loginValidation = [
+const userLoginValidation = [
   check("email", "Email field is required")
     .trim()
     .notEmpty()
@@ -108,4 +108,7 @@ const loginValidation = [
   },
 ];
 
-module.exports = { registerValidation, loginValidation };
+module.exports = {
+  userRegisterValidation,
+  userLoginValidation,
+};
