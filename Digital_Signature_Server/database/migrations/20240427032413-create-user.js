@@ -30,10 +30,6 @@ module.exports = {
         },
         allowNull: false,
       },
-      organization: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       email: {
         type: Sequelize.STRING,
         validate: {
