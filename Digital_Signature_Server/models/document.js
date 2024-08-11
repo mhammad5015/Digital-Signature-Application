@@ -9,13 +9,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Document.hasMany(models.SignedDocument, { foreignKey: "document_id" });
+      Document.hasMany(models.VariousParties, { foreignKey: "document_id" });
     }
   }
   Document.init(
     {
-      fileName: DataTypes.STRING,
-      file: DataTypes.TEXT,
+      documentName: DataTypes.STRING,
+      document: DataTypes.TEXT,
       // fileType: DataTypes.ENUM(
       //   "pdf",
       //   "docs",
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       //   "jpeg",
       //   "tiff"
       // ),
-      // status: DataTypes.ENUM
+      documentStatus: DataTypes.ENUM("processing", "completed", "rejected"),
     },
     {
       sequelize,

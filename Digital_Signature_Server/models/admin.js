@@ -12,13 +12,16 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Admin.hasMany(models.RealEstatePortalRequest, {foreignKey: 'admin_id'})
+      Admin.hasMany(models.RealEstatePortalRequest, {foreignKey: 'governmentOfficial_id'})
+      Admin.hasMany(models.DigitalCertificate, {foreignKey: 'admin_id'})
     }
   }
   Admin.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     email: DataTypes.STRING,
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    role: DataTypes.ENUM("admin", "governmentOfficial")
   }, {
     sequelize,
     modelName: 'Admin',

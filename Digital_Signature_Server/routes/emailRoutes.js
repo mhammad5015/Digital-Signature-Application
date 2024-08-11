@@ -4,6 +4,7 @@ const emailController = require("../controllers/emailController");
 const signController = require("../controllers/digitalSigningController");
 const auth = require("../middlewares/authMiddleware");
 
+
 router.post("/email/sendVerify", auth, emailController.sendVerificationEmail);
 
 router.post("/email/sendEmail", auth, emailController.sendSigningEmail);

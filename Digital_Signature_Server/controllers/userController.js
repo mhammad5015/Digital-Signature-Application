@@ -1,23 +1,11 @@
 const models = require("../models/index");
 const path = require("path");
-
-exports.getAllUsers = async (req, res, next) => {
-  try {
-    const userData = await models.User.findAll();
-    if (userData.length > 0) {
-      res.status(200).json({ message: "Success", data: userData });
-    } else {
-      res.status(200).json({ message: "There Is No Users", data: userData });
-    }
-  } catch (error) {
-    res.status(404).json({ message: error });
-  }
-};
+const CustomError = require("../util/CustomError");
 
 exports.uploadIdImages = async (req, res, next) => {
   try {
     if (!req.user) {
-      throw new Error("user is not set");
+      throw new CustomError("user is not set", 400);
     }
     let user_image = await models.UserIDImage.create({
       user_id: req.user.id,
@@ -32,7 +20,7 @@ exports.uploadIdImages = async (req, res, next) => {
       data: user_image,
     });
   } catch (err) {
-    res.status(400).json({ message: err });
+    next(err);
   }
 };
 
@@ -47,6 +35,6 @@ exports.uploadDocument = async (req, res, next) => {
       data: doc,
     });
   } catch (err) {
-    res.status(400).json({ message: err });
+    next(err);
   }
 };

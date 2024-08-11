@@ -20,11 +20,11 @@ module.exports = {
         allowNull: false,
         onDelete: "CASCADE",
       },
-      govermentOfficial_id: {
+      governmentOfficial_id: {
         type: Sequelize.INTEGER,
         references: {
           model: {
-            tableName: "GovermentOfficials",
+            tableName: "Admins",
           },
           key: "id",
         },
