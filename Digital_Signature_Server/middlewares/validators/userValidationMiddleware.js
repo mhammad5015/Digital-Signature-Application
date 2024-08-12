@@ -42,8 +42,8 @@ const uploadIdImages = [
 ];
 
 const uploadDocument = [
-  check("fileName", "The file name is required").trim().notEmpty(),
-  check("file", "The document is required").custom((value, { req }) => {
+  check("documentName", "The document name is required").trim().notEmpty(),
+  check("document", "The document is required").custom((value, { req }) => {
     if (!req.file) {
       throw new Error("The Document is required");
     }
