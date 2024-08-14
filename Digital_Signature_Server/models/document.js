@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       //   "tiff"
       // ),
       documentStatus: DataTypes.ENUM("processing", "completed", "rejected"),
+      counter: DataTypes.INTEGER,
     },
     {
       sequelize,

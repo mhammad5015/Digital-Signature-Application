@@ -34,4 +34,8 @@ router.get("/user/getUser", isUser, userController.getUser);
 
 router.get("/user/getUserDocuments", isUser, userController.getUserDocuments);
 
+router.delete("/user/deleteDocument/:document_id", isUser, userController.deleteDocument);
+
+router.get("/user/getDocumentParties/:document_id", isUser, userController.getDocumentParties);
+
 module.exports = router;

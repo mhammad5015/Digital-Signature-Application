@@ -25,19 +25,59 @@ exports.uploadIdImages = async (req, res, next) => {
 };
 
 exports.uploadDocument = async (req, res, next) => {
+  const transaction = await models.sequelize.transaction();
   try {
-    const user = await models.User.findOne({ where: { id: req.user.id } });
-    let doc = await models.Document.create({
-      documentName: req.body.documentName,
-      document: path.relative("public", req.file.path),
-      documentStatus: "processing",
+    const emails = req.body.emails;
+    const user = await models.User.findOne({
+      where: { id: req.user.id },
+      transaction,
     });
-    await user.addDocument(doc, { through: { isSigned: false } });
+
+    const documentName = req.body.documentName || req.file.originalname;
+    let doc = await models.Document.create(
+      {
+        documentName: documentName,
+        document: path.relative("public", req.file.path),
+        documentStatus: "processing",
+        counter: emails.length + 1,
+      },
+      { transaction }
+    );
+
+    await user.addDocument(doc, { through: { isSigned: false }, transaction });
+
+    for (const email of emails) {
+      let us = await models.User.findOne({
+        where: { email: email },
+        transaction,
+      });
+      if (!us) {
+        throw new CustomError(`${email} is not a user`);
+        /*
+        // add to the database as a guest
+        us = await models.User.create({ email: email }, { transaction });
+        // send a registration email to notify him that he should register
+        // set a registrationExpiry for the user
+        // create a scheduled job (node-cron) 
+        // delete the user if the registrationExpiry is out
+        */
+      }
+      await models.VariousParties.create(
+        {
+          user_id: us.id,
+          document_id: doc.id,
+          isSigned: false,
+        },
+        { transaction }
+      );
+    }
+    await transaction.commit();
     return res.json({
       message: "Document uploaded successfully",
       data: doc,
     });
   } catch (err) {
+    await transaction.rollback();
     next(err);
   }
 };
@@ -93,5 +133,66 @@ exports.getUserDocuments = async (req, res, next) => {
   }
 };
 
-// for whom?
-exports.deleteDocument = (req, res, next) => {};
+exports.getDocumentParties = async (req, res, next) => {
+  try {
+    const documentId = req.params.document_id;
+    const document = await models.Document.findByPk(documentId, {
+      include: [
+        {
+          model: models.User,
+          through: {
+            attributes: [],
+          },
+        },
+      ],
+    });
+    if (!document) {
+      throw new CustomError("Document not found", 400);
+    }
+    
+    return res.status(200).json({
+      message: "Success",
+      data: document,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// require a doc_id and token
+exports.deleteDocument = async (req, res, next) => {
+  try {
+    const document_id = req.params.document_id;
+    const user = await models.User.findOne({ where: { id: req.user.id } });
+
+    const a = await models.VariousParties.findOne({
+      where: { user_id: user.id, document_id: document_id },
+    });
+    if (!a) {
+      return res.status(200).json({
+        message: "Document not found",
+      });
+    }
+    a.destroy();
+
+    const document = await models.VariousParties.findOne({
+      where: { document_id: document_id },
+    });
+    if (!document) {
+      await models.Document.destroy({ where: { id: document_id } });
+    }
+
+    // if the user deleted the document before signing
+    if (user.isSigned === false) {
+      await models.Document.update(
+        { documentStatus: "rejected" },
+        { where: { id: document_id } }
+      );
+    }
+    res.status(200).json({
+      message: "Document deleted successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -31,6 +31,9 @@ module.exports = {
       documentStatus: {
         type: Sequelize.ENUM("processing", "completed", "rejected"),
       },
+      counter: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

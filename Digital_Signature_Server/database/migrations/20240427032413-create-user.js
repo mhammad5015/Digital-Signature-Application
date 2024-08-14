@@ -11,24 +11,12 @@ module.exports = {
       },
       firstName: {
         type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
-        allowNull: false,
       },
       middleName: {
         type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
-        allowNull: false,
       },
       lastName: {
         type: Sequelize.STRING,
-        validate: {
-          notEmpty: true,
-        },
-        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
@@ -39,7 +27,6 @@ module.exports = {
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       createdAt: {
         allowNull: false,
