@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Document.hasMany(models.VariousParties, { foreignKey: "document_id" });
+      Document.belongsToMany(models.User, {
+        through: models.VariousParties,
+        foreignKey: "document_id",
+      });
     }
   }
   Document.init(

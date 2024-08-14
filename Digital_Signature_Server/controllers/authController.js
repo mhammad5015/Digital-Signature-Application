@@ -18,7 +18,7 @@ exports.userRegister = async (req, res, next) => {
     };
     const user = await models.User.create(userData);
     let token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, firstName: user.firstName },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
