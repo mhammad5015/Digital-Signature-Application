@@ -40,7 +40,6 @@ module.exports = {
         allowNull: false,
       },
       reqStatus: {
-        // fill it as you want
         type: Sequelize.ENUM("pending", "approved", "rejected"),
       },
       createdAt: {

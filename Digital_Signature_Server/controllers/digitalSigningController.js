@@ -1,4 +1,6 @@
 const forge = require("node-forge");
+const crypto = require("crypto");
+const fs = require("fs");
 
 function forgeBigIntegerToBigInt(forgeBigInt) {
   return BigInt("0x" + forgeBigInt.toString(16));
@@ -106,9 +108,10 @@ exports.RSA = async (req, res, next) => {
     console.log(`Modulus n: ${n}`);
     console.log(`D: ${D}`);
     console.log(`keykey: ${publicKey.n}`);
-    console.log("Public Key:", publicKey.n);
+    console.log("Public Key:", publicKey);
     console.log("Private Key:", privateKey);
     console.log(`Bit length of n: ${bitLength}`);
+    return { publicKey, privateKey };
   } catch (err) {
     console.error("Error generating primes:", err);
   }
@@ -116,8 +119,8 @@ exports.RSA = async (req, res, next) => {
 
 exports.encryptionRSA = (req, res, next) => {
   try {
-    const { message, publicKey } = req.body;
-    const ciphertext = encryptionCiphertext(message, publicKey);
+    const { message, Key } = req.body;
+    const ciphertext = encryptionCiphertext(message, Key);
     res
       .json({
         message: "sucess",
@@ -135,7 +138,103 @@ exports.encryptionRSA = (req, res, next) => {
 };
 
 exports.decryptionRSA = (req, res, next) => {
-  const { ciphertext, privateKey } = req.body;
-  const message = decryptionCiphertext(ciphertext, privateKey);
+  const { ciphertext, Key } = req.body;
+  const message = decryptionCiphertext(ciphertext, Key);
   res.send({ message: message.toString() });
 };
+
+exports.customKeyToForgeKey = (publicKey, privateKey) => {
+  // console.log(publicKey.body);
+  // console.log(privateKey);
+  let privKey;
+  let pubKey;
+  if (publicKey != null) {
+    pubKey = forge.pki.rsa.setPublicKey(
+      new forge.jsbn.BigInteger(publicKey.n.toString()),
+      new forge.jsbn.BigInteger(publicKey.e.toString())
+    );
+  }
+  if (privateKey != null) {
+    privKey = forge.pki.rsa.setPrivateKey(
+      new forge.jsbn.BigInteger(privateKey.n.toString()),
+      new forge.jsbn.BigInteger(privateKey.d.toString()),
+      // new forge.jsbn.BigInteger(privateKey.d.toString()),
+      new forge.jsbn.BigInteger("0"),
+      new forge.jsbn.BigInteger("0"),
+      new forge.jsbn.BigInteger("0"),
+      new forge.jsbn.BigInteger("0"),
+      new forge.jsbn.BigInteger("0")
+    );
+  }
+  return { publicKey: pubKey, privateKey: privKey };
+};
+
+exports.digitalSigning = (req, res, next) => {
+  try {
+    const { message, privateKey } = req.body;
+
+    const hash = sha256(message);
+
+    const sign = crypto.createSign("SHA256");
+    sign.update(hash);
+    sign.end();
+
+    // console.log(sign);
+
+    // const privateKeyForge = this.customKeyToForgeKey(
+    //   null,
+    //   privateKey
+    // ).privateKey;
+    // console.log(privateKeyForge);
+    const privateKey2 = crypto.createPrivateKey({
+      key: fs.readFileSync("user.key"),
+      format: "pem",
+    });
+
+    const pkcs8Key = privateKey2.export({
+      format: "pem",
+      type: "pkcs8",
+    });
+
+    const signature = sign.sign(pkcs8Key, "base64");
+
+    res.status(200).json({
+      message: "success",
+      signature: signature.toString("hex"),
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.verifySignature = (req, res, next) => {
+  try {
+    const { message, publicKey, signature } = req.body;
+
+    const hash = sha256(message);
+
+    const verify = crypto.createVerify("SHA256");
+    verify.update(hash);
+    verify.end();
+
+    const publicKeyForge = RSA.customKeyToForgeKey(publicKey, null).publicKey;
+
+    const isValid = verify.verify(
+      publicKeyForge,
+      Buffer.from(signature, "hex")
+    );
+
+    res.status(200).json({
+      message: "success",
+      isValid: isValid,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+function sha256(input) {
+  return crypto.createHash("sha256").update(input).digest("hex");
+}
