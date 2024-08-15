@@ -18,7 +18,18 @@ module.exports = {
           key: "id",
         },
         allowNull: false,
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE",
+      },
+      admin_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "Admins",
+          },
+          key: "id",
+        },
+        allowNull: false,
+        onDelete: "CASCADE",
       },
       version: {
         type: Sequelize.STRING,
@@ -42,6 +53,14 @@ module.exports = {
       },
       subject: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      organization: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      ca_signature: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       createdAt: {
