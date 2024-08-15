@@ -172,4 +172,3 @@ exports.createDigitalCertificate = async (req, res, next) => {
   });
 };
 
-

@@ -11,18 +11,20 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  DigitalCertificate.init({
-    version: DataTypes.STRING,
-    serialNumber: DataTypes.INTEGER,
-    signatureAlgorithm: DataTypes.STRING,
-    issuer: DataTypes.STRING,
-    validatePeriod: DataTypes.DATE,
-    subject: DataTypes.STRING,
-    organization: DataTypes.STRING,
-    ca_signature: DataTypes.TEXT
-  }, {
-    sequelize,
-    modelName: 'DigitalCertificate',
-  });
+  DigitalCertificate.init(
+    {
+      version: DataTypes.STRING,
+      serialNumber: DataTypes.INTEGER,
+      signatureAlgorithm: DataTypes.STRING,
+      issuer: DataTypes.STRING,
+      validatePeriod: DataTypes.DATE,
+      subject: DataTypes.STRING,
+      ca_signature: DataTypes.TEXT,
+    },
+    {
+      sequelize,
+      modelName: "DigitalCertificate",
+    }
+  );
   return DigitalCertificate;
 };

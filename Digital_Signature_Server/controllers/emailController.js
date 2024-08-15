@@ -2,8 +2,10 @@ const nodemailer = require("nodemailer");
 const models = require("../models/index");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
-const { where, DATE } = require("sequelize");
-const CustomError = require("../util/CustomError");
+
+const { where } = require("sequelize");
+
+
 
 function generateCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
