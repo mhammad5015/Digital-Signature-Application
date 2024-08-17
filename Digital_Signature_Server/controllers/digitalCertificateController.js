@@ -51,17 +51,17 @@ exports.changeOrderStatus = async (req, res, next) => {
 };
 
 exports.createDigitalCertificate = async (req, res, next) => {
-  const {
-    fullName,
-    serialNum,
-    subject,
-    issuer,
-    validityPeriod,
-    country,
-    userEmail,
-    CAprivateKey,
-    version,
-  } = req;
+  // const {
+  //   fullName,
+  //   serialNum,
+  //   subject,
+  //   issuer,
+  //   validityPeriod,
+  //   country,
+  //   userEmail,
+  //   CAprivateKey,
+  //   version,
+  // } = req;
   try {
     const RSAR = await RSA.RSA();
     const customPublicKey = RSAR.publicKey;
@@ -72,94 +72,102 @@ exports.createDigitalCertificate = async (req, res, next) => {
       customPrivateKey
     );
 
-    const user = await models.User.findOne({ where: { email: email } });
+    // const user = await models.User.findOne({ where: { email: email } });
 
-    if (user) {
-      const certificate = await models.DigitalCertificates.create({
-        user_id: user.id,
-        version: version,
-        serialNumber: serialNum,
-        signatureAlgorithm: "RSA",
-        issuer: issuer,
-        validatePeriod: validityPeriod,
-        subject: subject,
-      });
-    }
+    // if (user) {
+    //   const certificate = await models.DigitalCertificates.create({
+    //     user_id: user.id,
+    //     version: version,
+    //     serialNumber: serialNum,
+    //     signatureAlgorithm: "RSA",
+    //     issuer: issuer,
+    //     validatePeriod: validityPeriod,
+    //     subject: subject,
+    //   });
+    // }
 
-    const publicK = await models.PublicKeys.create({
-      user_id: user.id,
-      publicKey: publicKey,
-    });
-    const csr = forge.pki.createCertificationRequest();
-    csr.publicKey = publicKey;
-    csr.setSubject([
-      { name: "commonName", value: fullName },
-      { name: "version", value: version },
-      { name: "Serial number", value: serialNum },
-      { name: "Subject", value: subject },
-      { name: "Issuer", value: issuer },
-      { name: "Validity period", value: validityPeriod },
-      { name: "Public key", value: publicKey },
-      { name: "countryName", value: country },
-      { name: "emailAddress", value: userEmail },
-    ]);
-    csr.addAttribute({
-      name: "extensionRequest",
-      extensions: [
-        {
-          name: "subjectAltName",
-          altNames: [
-            {
-              type: 2,
-              value: "www.example.com",
-            },
-            {
-              type: 1,
-              value: "john.doe@example.com",
-            },
-          ],
-        },
-        {
-          name: "keyUsage",
-          critical: true,
-          ivalues: ["digitalSignature", "keyEncipherment"],
-        },
-        {
-          name: "extendedKeyUsage",
-          critical: true,
+    // const publicK = await models.PublicKeys.create({
+    //   user_id: user.id,
+    //   publicKey: publicKey,
+    // });
+    // const csr = forge.pki.createCertificationRequest();
+    // csr.publicKey = publicKey;
+    // csr.setSubject([
+    //   { name: "commonName", value: fullName },
+    //   { name: "version", value: version },
+    //   { name: "Serial number", value: serialNum },
+    //   { name: "Subject", value: subject },
+    //   { name: "Issuer", value: issuer },
+    //   { name: "Validity period", value: validityPeriod },
+    //   { name: "Public key", value: publicKey },
+    //   { name: "countryName", value: country },
+    //   { name: "emailAddress", value: userEmail },
+    // ]);
+    // csr.addAttribute({
+    //   name: "extensionRequest",
+    //   extensions: [
+    //     {
+    //       name: "subjectAltName",
+    //       altNames: [
+    //         {
+    //           type: 2,
+    //           value: "www.example.com",
+    //         },
+    //         {
+    //           type: 1,
+    //           value: "john.doe@example.com",
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       name: "keyUsage",
+    //       critical: true,
+    //       ivalues: ["digitalSignature", "keyEncipherment"],
+    //     },
+    //     {
+    //       name: "extendedKeyUsage",
+    //       critical: true,
 
-          value: ["serverAuth", "clientAuth"],
-        },
-      ],
-    });
+    //       value: ["serverAuth", "clientAuth"],
+    //     },
+    //   ],
+    // });
 
-    csr.sign(CAprivateKey);
+    // csr.sign(CAprivateKey);
+    // console.log(privateKey);
 
     const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
-    const csrPem = forge.pki.certificationRequestToPem(csr);
+    const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+    // const csrPem = forge.pki.certificationRequestToPem(csr);
 
-    const platform = os.platform();
+    // const platform = os.platform();
 
-    let filePathKey;
-    let filePathCsr;
+    // let filePathKey;
+    // let filePathCsr;
 
-    if (platform === "win32" || platform === "darwin" || platform === "linux") {
-      const desktopDir = path.join(os.homedir(), "Desktop");
-      filePathKey = path.join(desktopDir, "user.key");
-      filePathCsr = path.join(desktopDir, "user.csr");
-    } else if (platform === "android" || platform === "ios") {
-      const downloadsDir = path.join(os.homedir(), "Downloads", "CustomFolder");
-      fs.mkdirSync(downloadsDir, { recursive: true }); // Create the folder if it doesn't exist
-      filePathKey = path.join(downloadsDir, "user.key");
-      filePathCsr = path.join(downloadsDir, "user.csr");
-    } else {
-      throw new Error("Unsupported platform");
-    }
+    // if (platform === "win32" || platform === "darwin" || platform === "linux") {
+    //   const desktopDir = path.join(os.homedir(), "Desktop");
+    //   filePathKey = path.join(desktopDir, "user.key");
+    //   filePathCsr = path.join(desktopDir, "user.csr");
+    // } else if (platform === "android" || platform === "ios") {
+    //   const downloadsDir = path.join(os.homedir(), "Downloads", "CustomFolder");
+    //   fs.mkdirSync(downloadsDir, { recursive: true }); // Create the folder if it doesn't exist
+    //   filePathKey = path.join(downloadsDir, "user.key");
+    //   filePathCsr = path.join(downloadsDir, "user.csr");
+    // } else {
+    //   throw new Error("Unsupported platform");
+    // }
 
+    // fs.writeFileSync(filePathKey, privateKeyPem);
+    // fs.writeFileSync(filePathCsr, csrPem);
+    const filePathKey = path.join(__dirname, "user.key");
+    const filePathKey2 = path.join(__dirname, "public.key");
+
+    // Write the private key to the file
     fs.writeFileSync(filePathKey, privateKeyPem);
-    fs.writeFileSync(filePathCsr, csrPem);
+    fs.writeFileSync(filePathKey2, publicKeyPem);
 
-    console.log("Files written to:", filePathKey, "and", filePathCsr);
+    // console.log("Files written to:", filePathKey, "and", filePathCsr);
 
     console.log("CSR is now ready to be sent to the CA.");
   } catch (err) {
@@ -172,3 +180,26 @@ exports.createDigitalCertificate = async (req, res, next) => {
   });
 };
 
+exports.verifyCertificate = (req, res, next) => {
+  const { certificate } = req.body;
+  try {
+    const csr = forge.pki.certificationRequestFromPem(certificate);
+
+    const subject = csr.subject.attributes.map((attr) => {
+      return {
+        type: attr.name,
+        value: attr.value,
+      };
+    });
+
+    res.json({
+      message: "CSR verified successfully!",
+      subject: subject,
+    
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Invalid CSR format or verification failed." });
+  }
+};
