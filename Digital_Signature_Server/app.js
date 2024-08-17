@@ -21,12 +21,14 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const emailRoutes = require("./routes/emailRoutes");
+const portalRoutes = require("./routes/portalRequestRoutes");
 
 // Using Routes
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(adminRoutes);
 app.use(emailRoutes);
+app.use(portalRoutes);
 
 app.use(globalErrorHandler);
 
