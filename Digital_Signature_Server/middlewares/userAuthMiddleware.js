@@ -29,6 +29,9 @@ module.exports = (req, res, next) => {
         if (!isUser) {
           throw new CustomError("Invalid token. Access is forbidden.", 403);
         }
+        if(isUser.blocked == 1){
+          throw new CustomError("Access is forbidden (blocked).", 403);
+        }
         req.user = user;
         next();
       } catch (err) {
