@@ -12,6 +12,15 @@ const RSA = require("./digitalSigningController");
 exports.uploadUserData = async (req, res, next) => {
   const { fullName, nationalNumber } = req.body;
   try {
+    const existingCertificate = await DigitalCertificate.findOne({
+      where: { userId: userId },
+    });
+
+    if (existingCertificate) {
+      return res
+        .status(400)
+        .json({ message: "You already have a certificate." });
+    }
     if (!req.user) {
       throw new CustomError("user is not set", 400);
     }
@@ -201,7 +210,7 @@ exports.createDigitalCertificate = async (req, res, next) => {
 exports.verifyCertificate = (req, res, next) => {
   const { certificate } = req.body;
   try {
-    const certificate1 =  fs.readFileSync(certificate);
+    const certificate1 = fs.readFileSync(certificate);
     const csr = forge.pki.certificationRequestFromPem(certificate1);
     const subject = csr.subject.attributes.map((attr) => {
       return {
@@ -215,7 +224,7 @@ exports.verifyCertificate = (req, res, next) => {
       subject: subject,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res
       .status(500)
       .json({ error: "Invalid CSR format or verification failed." });
