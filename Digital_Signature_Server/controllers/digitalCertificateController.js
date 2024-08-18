@@ -77,6 +77,8 @@ exports.changeOrderStatus = async (req, res, next) => {
 };
 
 exports.createDigitalCertificate = async (req, res, next) => {
+  // edit to generate all
+
   const { serialNum, subject, organization, version } = req;
   try {
     const RSAR = await RSA.RSA();
@@ -296,4 +298,15 @@ exports.verifyCertificate = (req, res, next) => {
       .status(500)
       .json({ error: "Invalid CSR format or verification failed." });
   }
+};
+
+exports.getCertificateOrderStatus = (req, res, next) => {
+  const status = models.CertificateOrders.findOne({
+    where: { user_id: req.user.id },
+  });
+
+  return res.status(200).json({
+    message: success,
+    status: status.reqStatus,
+  });
 };
