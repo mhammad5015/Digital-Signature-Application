@@ -77,7 +77,7 @@ exports.getGovPortalRequests = async (req, res, next) => {
         data: portalRequests,
       });
     }
-    return res.json({
+    return res.status(200).json({
       message: "Success",
       data: portalRequests,
     });
@@ -101,7 +101,7 @@ exports.checkPortalRequest = async (req, res, next) => {
     portalRequest.reqStatus = req.body.reqStatus;
     portalRequest.admin_id = req.admin.id;
     portalRequest.save();
-    return res.status(404).json({
+    return res.status(200).json({
       message: "success",
       data: portalRequest,
     });
@@ -126,7 +126,7 @@ exports.checkPortalRequest = async (req, res, next) => {
     portalRequest.admin_id = req.admin.id;
     portalRequest.message = req.body.message || null;
     portalRequest.save();
-    return res.status(404).json({
+    return res.status(200).json({
       message: "success",
       data: portalRequest,
     });
@@ -151,9 +151,28 @@ exports.processPortalRequest = async (req, res, next) => {
     portalRequest.governmentOfficial_id = req.admin.id;
     portalRequest.message = req.body.message || null;
     portalRequest.save();
-    return res.status(404).json({
+    return res.status(200).json({
       message: "success",
       data: portalRequest,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deletePortalRequest = async (req, res, next) => {
+  try {
+    const portalRequest = await models.RealEstatePortalRequest.findOne({
+      where: { id: req.params.req_id },
+    });
+    if (!portalRequest) {
+      return res.status(400).json({
+        message: "there is no request with this id",
+      });
+    }
+    await portalRequest.destroy();
+    return res.status(200).json({
+      message: "Request deleted successfully",
     });
   } catch (err) {
     next(err);

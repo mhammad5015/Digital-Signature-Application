@@ -48,4 +48,10 @@ router.put(
   portalRequestController.processPortalRequest
 );
 
+router.delete(
+  "/admin/deletePortalRequest/:req_id",
+  isGeneralAdmins,
+  portalRequestController.deletePortalRequest
+);
+
 module.exports = router;
