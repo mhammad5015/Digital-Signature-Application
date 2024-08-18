@@ -5,9 +5,9 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const RSA = require("./digitalSigningController");
-exports.sendPersonalInfo = async (req, res, next) => {
-  const { imageFront, imageBack } = req.body;
-};
+// exports.sendPersonalInfo = async (req, res, next) => {
+//   const { imageFront, imageBack } = req.body;
+// };
 
 exports.uploadUserData = async (req, res, next) => {
   const { fullName, nationalNumber } = req.body;
@@ -38,10 +38,17 @@ exports.uploadUserData = async (req, res, next) => {
 exports.changeOrderStatus = async (req, res, next) => {
   const { status } = req.body;
   try {
+    if (!req.user) {
+      throw new CustomError("user is not set", 400);
+    }
     let id = req.user.id;
 
-    const order = await models.CertificateOrders.findOne({ where: { id: id } });
-    await order.update({ status: status });
+    const order = await models.CertificateOrders.findOne({
+      where: { user_id: id },
+    });
+    console.log(order);
+    await order.update({ reqStatus: status });
+    await order.save();
     res.status(200).json({
       message: "order status updated successfully",
     });
@@ -51,18 +58,20 @@ exports.changeOrderStatus = async (req, res, next) => {
 };
 
 exports.createDigitalCertificate = async (req, res, next) => {
-  // const {
-  //   fullName,
-  //   serialNum,
-  //   subject,
-  //   issuer,
-  //   validityPeriod,
-  //   country,
-  //   userEmail,
-  //   CAprivateKey,
-  //   version,
-  // } = req;
+  const {
+    serialNum,
+    subject,
+    validityPeriod,
+    userEmail,
+    organization,
+    CAprivateKey,
+    version,
+    country,
+  } = req;
   try {
+    if (!req.admin) {
+      throw new CustomError("user is not set", 400);
+    }
     const RSAR = await RSA.RSA();
     const customPublicKey = RSAR.publicKey;
     const customPrivateKey = RSAR.privateKey;
@@ -72,102 +81,99 @@ exports.createDigitalCertificate = async (req, res, next) => {
       customPrivateKey
     );
 
-    // const user = await models.User.findOne({ where: { email: email } });
+    const user = await models.User.findOne({ where: { email: userEmail } });
 
-    // if (user) {
-    //   const certificate = await models.DigitalCertificates.create({
-    //     user_id: user.id,
-    //     version: version,
-    //     serialNumber: serialNum,
-    //     signatureAlgorithm: "RSA",
-    //     issuer: issuer,
-    //     validatePeriod: validityPeriod,
-    //     subject: subject,
-    //   });
-    // }
+    if (user) {
+      const certificate = await models.DigitalCertificates.create({
+        user_id: user.id,
+        version: version,
+        serialNumber: serialNum,
+        organization: organization,
+        signatureAlgorithm: "RSA",
+        issuer: req.admin.firstName + " " + req.admin.lastName,
+        validatePeriod: validityPeriod,
+        subject: subject,
+      });
+    }
 
-    // const publicK = await models.PublicKeys.create({
-    //   user_id: user.id,
-    //   publicKey: publicKey,
-    // });
-    // const csr = forge.pki.createCertificationRequest();
-    // csr.publicKey = publicKey;
-    // csr.setSubject([
-    //   { name: "commonName", value: fullName },
-    //   { name: "version", value: version },
-    //   { name: "Serial number", value: serialNum },
-    //   { name: "Subject", value: subject },
-    //   { name: "Issuer", value: issuer },
-    //   { name: "Validity period", value: validityPeriod },
-    //   { name: "Public key", value: publicKey },
-    //   { name: "countryName", value: country },
-    //   { name: "emailAddress", value: userEmail },
-    // ]);
-    // csr.addAttribute({
-    //   name: "extensionRequest",
-    //   extensions: [
-    //     {
-    //       name: "subjectAltName",
-    //       altNames: [
-    //         {
-    //           type: 2,
-    //           value: "www.example.com",
-    //         },
-    //         {
-    //           type: 1,
-    //           value: "john.doe@example.com",
-    //         },
-    //       ],
-    //     },
-    //     {
-    //       name: "keyUsage",
-    //       critical: true,
-    //       ivalues: ["digitalSignature", "keyEncipherment"],
-    //     },
-    //     {
-    //       name: "extendedKeyUsage",
-    //       critical: true,
+    const publicK = await models.PublicKeys.create({
+      user_id: user.id,
+      publicKey: publicKey,
+    });
+    const csr = forge.pki.createCertificationRequest();
+    csr.publicKey = publicKey;
+    csr.setSubject([
+      { name: "full Name", value: fullName },
+      { name: "version", value: version },
+      { name: "Serial number", value: serialNum },
+      { name: "Subject", value: subject },
+      { name: "Issuer", value: req.admin.firstName + " " + req.admin.lastName },
+      { name: "Validity period", value: validityPeriod },
+      { name: "Public key", value: publicKey },
+      { name: "countryName", value: country },
+      { name: "emailAddress", value: userEmail },
+    ]);
+    csr.addAttribute({
+      name: "extensionRequest",
+      extensions: [
+        {
+          name: "subjectAltName",
+          altNames: [
+            {
+              type: 2,
+              value: "www.example.com",
+            },
+            {
+              type: 1,
+              value: "john.doe@example.com",
+            },
+          ],
+        },
+        {
+          name: "keyUsage",
+          critical: true,
+          ivalues: ["digitalSignature", "keyEncipherment"],
+        },
+        {
+          name: "extendedKeyUsage",
+          critical: true,
 
-    //       value: ["serverAuth", "clientAuth"],
-    //     },
-    //   ],
-    // });
+          value: ["serverAuth", "clientAuth"],
+        },
+      ],
+    });
 
-    // csr.sign(CAprivateKey);
-    // console.log(privateKey);
+    csr.sign(CAprivateKey);
 
     const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
-    const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
-    // const csrPem = forge.pki.certificationRequestToPem(csr);
+    // const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+    const csrPem = forge.pki.certificationRequestToPem(csr);
 
-    // const platform = os.platform();
+    const platform = os.platform();
 
-    // let filePathKey;
-    // let filePathCsr;
+    let filePathKey;
+    let filePathCsr;
 
-    // if (platform === "win32" || platform === "darwin" || platform === "linux") {
-    //   const desktopDir = path.join(os.homedir(), "Desktop");
-    //   filePathKey = path.join(desktopDir, "user.key");
-    //   filePathCsr = path.join(desktopDir, "user.csr");
-    // } else if (platform === "android" || platform === "ios") {
-    //   const downloadsDir = path.join(os.homedir(), "Downloads", "CustomFolder");
-    //   fs.mkdirSync(downloadsDir, { recursive: true }); // Create the folder if it doesn't exist
-    //   filePathKey = path.join(downloadsDir, "user.key");
-    //   filePathCsr = path.join(downloadsDir, "user.csr");
-    // } else {
-    //   throw new Error("Unsupported platform");
-    // }
+    if (platform === "win32" || platform === "darwin" || platform === "linux") {
+      const desktopDir = path.join(os.homedir(), "Desktop");
+      filePathKey = path.join(desktopDir, "user.key");
+      filePathCsr = path.join(desktopDir, "user.csr");
+    } else if (platform === "android" || platform === "ios") {
+      const downloadsDir = path.join(os.homedir(), "Downloads", "CustomFolder");
+      fs.mkdirSync(downloadsDir, { recursive: true });
+      filePathKey = path.join(downloadsDir, "user.key");
+      filePathCsr = path.join(downloadsDir, "user.csr");
+    } else {
+      throw new Error("Unsupported platform");
+    }
 
-    // fs.writeFileSync(filePathKey, privateKeyPem);
-    // fs.writeFileSync(filePathCsr, csrPem);
-    const filePathKey = path.join(__dirname, "user.key");
-    const filePathKey2 = path.join(__dirname, "public.key");
-
-    // Write the private key to the file
     fs.writeFileSync(filePathKey, privateKeyPem);
-    fs.writeFileSync(filePathKey2, publicKeyPem);
+    fs.writeFileSync(filePathCsr, csrPem);
 
-    // console.log("Files written to:", filePathKey, "and", filePathCsr);
+    // const filePathKey = path.join(__dirname, "user.key");
+    // const filePathKey2 = path.join(__dirname, "public.key");
+    // fs.writeFileSync(filePathKey, privateKeyPem);
+    // fs.writeFileSync(filePathKey2, publicKeyPem);
 
     console.log("CSR is now ready to be sent to the CA.");
   } catch (err) {
@@ -195,7 +201,6 @@ exports.verifyCertificate = (req, res, next) => {
     res.json({
       message: "CSR verified successfully!",
       subject: subject,
-    
     });
   } catch (error) {
     res
