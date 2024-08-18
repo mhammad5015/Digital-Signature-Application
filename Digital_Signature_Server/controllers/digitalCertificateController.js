@@ -5,9 +5,9 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const RSA = require("./digitalSigningController");
-exports.sendPersonalInfo = async (req, res, next) => {
-  const { imageFront, imageBack } = req.body;
-};
+// exports.sendPersonalInfo = async (req, res, next) => {
+//   const { imageFront, imageBack } = req.body;
+// };
 
 exports.uploadUserData = async (req, res, next) => {
   const { fullName, nationalNumber } = req.body;
@@ -38,10 +38,17 @@ exports.uploadUserData = async (req, res, next) => {
 exports.changeOrderStatus = async (req, res, next) => {
   const { status } = req.body;
   try {
+    if (!req.user) {
+      throw new CustomError("user is not set", 400);
+    }
     let id = req.user.id;
 
-    const order = await models.CertificateOrders.findOne({ where: { id: id } });
-    await order.update({ status: status });
+    const order = await models.CertificateOrders.findOne({
+      where: { user_id: id },
+    });
+    console.log(order);
+    await order.update({ reqStatus: status });
+    await order.save();
     res.status(200).json({
       message: "order status updated successfully",
     });
@@ -52,17 +59,19 @@ exports.changeOrderStatus = async (req, res, next) => {
 
 exports.createDigitalCertificate = async (req, res, next) => {
   const {
-    fullName,
     serialNum,
     subject,
-    issuer,
     validityPeriod,
-    country,
     userEmail,
+    organization,
     CAprivateKey,
     version,
+    country,
   } = req;
   try {
+    if (!req.admin) {
+      throw new CustomError("user is not set", 400);
+    }
     const RSAR = await RSA.RSA();
     const customPublicKey = RSAR.publicKey;
     const customPrivateKey = RSAR.privateKey;
@@ -72,15 +81,16 @@ exports.createDigitalCertificate = async (req, res, next) => {
       customPrivateKey
     );
 
-    const user = await models.User.findOne({ where: { email: email } });
+    const user = await models.User.findOne({ where: { email: userEmail } });
 
     if (user) {
       const certificate = await models.DigitalCertificates.create({
         user_id: user.id,
         version: version,
         serialNumber: serialNum,
+        organization: organization,
         signatureAlgorithm: "RSA",
-        issuer: issuer,
+        issuer: req.admin.firstName + " " + req.admin.lastName,
         validatePeriod: validityPeriod,
         subject: subject,
       });
@@ -93,11 +103,11 @@ exports.createDigitalCertificate = async (req, res, next) => {
     const csr = forge.pki.createCertificationRequest();
     csr.publicKey = publicKey;
     csr.setSubject([
-      { name: "commonName", value: fullName },
+      { name: "full Name", value: fullName },
       { name: "version", value: version },
       { name: "Serial number", value: serialNum },
       { name: "Subject", value: subject },
-      { name: "Issuer", value: issuer },
+      { name: "Issuer", value: req.admin.firstName + " " + req.admin.lastName },
       { name: "Validity period", value: validityPeriod },
       { name: "Public key", value: publicKey },
       { name: "countryName", value: country },
@@ -136,6 +146,7 @@ exports.createDigitalCertificate = async (req, res, next) => {
     csr.sign(CAprivateKey);
 
     const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
+    // const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
     const csrPem = forge.pki.certificationRequestToPem(csr);
 
     const platform = os.platform();
@@ -149,7 +160,7 @@ exports.createDigitalCertificate = async (req, res, next) => {
       filePathCsr = path.join(desktopDir, "user.csr");
     } else if (platform === "android" || platform === "ios") {
       const downloadsDir = path.join(os.homedir(), "Downloads", "CustomFolder");
-      fs.mkdirSync(downloadsDir, { recursive: true }); // Create the folder if it doesn't exist
+      fs.mkdirSync(downloadsDir, { recursive: true });
       filePathKey = path.join(downloadsDir, "user.key");
       filePathCsr = path.join(downloadsDir, "user.csr");
     } else {
@@ -159,7 +170,10 @@ exports.createDigitalCertificate = async (req, res, next) => {
     fs.writeFileSync(filePathKey, privateKeyPem);
     fs.writeFileSync(filePathCsr, csrPem);
 
-    console.log("Files written to:", filePathKey, "and", filePathCsr);
+    // const filePathKey = path.join(__dirname, "user.key");
+    // const filePathKey2 = path.join(__dirname, "public.key");
+    // fs.writeFileSync(filePathKey, privateKeyPem);
+    // fs.writeFileSync(filePathKey2, publicKeyPem);
 
     console.log("CSR is now ready to be sent to the CA.");
   } catch (err) {
@@ -172,3 +186,25 @@ exports.createDigitalCertificate = async (req, res, next) => {
   });
 };
 
+exports.verifyCertificate = (req, res, next) => {
+  const { certificate } = req.body;
+  try {
+    const csr = forge.pki.certificationRequestFromPem(certificate);
+
+    const subject = csr.subject.attributes.map((attr) => {
+      return {
+        type: attr.name,
+        value: attr.value,
+      };
+    });
+
+    res.json({
+      message: "CSR verified successfully!",
+      subject: subject,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Invalid CSR format or verification failed." });
+  }
+};

@@ -9,9 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       User.hasOne(models.DigitalCertificate, { foreignKey: "user_id" });
+      User.hasOne(models.CertificateOrders, { foreignKey: "user_id" });
       User.hasOne(models.EmailVerification, { foreignKey: "user_id" });
       User.hasOne(models.PublicKey, { foreignKey: "user_id" });
       User.hasMany(models.RealEstatePortalRequest, { foreignKey: "user_id" });
+
       User.belongsToMany(models.Document, {
         through: models.VariousParties,
         foreignKey: "user_id",
