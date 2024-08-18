@@ -217,11 +217,13 @@ exports.customKeyToForgeKey = (publicKey, privateKey) => {
 
 exports.digitalSigning = async (req, res, next) => {
   try {
-    const { message, privateKey } = req.body;
-
+    const { message } = req.body;
+    const privateKeyPath = req.file.path;
     const hash = sha256(message);
+
+    const privateKey = fs.readFileSync(privateKeyPath, { encoding: "utf-8" });
     const privateKey2 = crypto.createPrivateKey({
-      key: fs.readFileSync("user.key"),
+      key: privateKey,
       format: "pem",
     });
 
@@ -245,10 +247,19 @@ exports.digitalSigning = async (req, res, next) => {
   }
 };
 
-exports.verifySignature = (req, res, next) => {
+exports.verifySignature = async (req, res, next) => {
   try {
     const { message, signature } = req.body;
 
+    const userId = req.user.id;
+    //here
+    // Step 1: Get rows from VariousParties for the current user
+    const variousParties = await models.VariousParties.findAll({
+      where: { user_id: userId },
+    });
+    //
+
+    //
     const hash = sha256(message);
 
     const privateKey2 = crypto.createPublicKey({

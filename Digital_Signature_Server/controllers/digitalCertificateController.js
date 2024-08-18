@@ -11,7 +11,7 @@ exports.uploadUserData = async (req, res, next) => {
   const { fullName, nationalNumber } = req.body;
   try {
     const existingCertificate = await models.DigitalCertificate.findOne({
-      where: { userId: req.user.id },
+      where: { user_id: req.user.id },
     });
 
     if (existingCertificate) {

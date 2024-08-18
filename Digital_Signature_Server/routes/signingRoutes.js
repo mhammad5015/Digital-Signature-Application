@@ -16,7 +16,11 @@ router.get("/email/RSA", signController.RSA);
 
 router.post("/signature/forgekey", signController.customKeyToForgeKey);
 
-router.post("/signature/DigitalSignature", signController.digitalSigning);
+router.post(
+  "/signature/DigitalSignature",
+  multer.uploadDocument.single("privateKeyPath"),
+  signController.digitalSigning
+);
 
 router.post("/signature/VerifySignature", signController.verifySignature);
 
