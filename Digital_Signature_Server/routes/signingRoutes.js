@@ -6,7 +6,6 @@ const multer = require("../util/multer");
 const userAuth = require("../middlewares/userAuthMiddleware");
 const Validator = require("../middlewares/validators/userValidationMiddleware");
 
-
 // router.post("/encryptionRSA", signController.encryptionRSA);
 
 router.get("/RSA", signController.RSA);
@@ -22,12 +21,17 @@ router.post("/signature/DigitalSignature", signController.digitalSigning);
 router.post("/signature/VerifySignature", signController.verifySignature);
 
 router.post(
-      "/signature/signDocument",
-      userAuth,
-      multer.uploadDocument.single("document"),
-      Validator.uploadDocument,
-      signController.signDocument
-    );
+  "/signature/signDocument",
+  userAuth,
+  multer.uploadDocument.single("document"),
+  Validator.uploadDocument,
+  signController.signDocument
+);
 
+router.put(
+  "/signature/partySign/:document_id",
+  userAuth,
+  signController.partySign
+);
 
 module.exports = router;
