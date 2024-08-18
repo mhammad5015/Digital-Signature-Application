@@ -32,4 +32,10 @@ router.post(
   signController.signDocument
 );
 
+router.put(
+  "/signature/partySign/:document_id",
+  userAuth,
+  signController.partySign
+);
+
 module.exports = router;
