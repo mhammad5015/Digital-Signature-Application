@@ -250,15 +250,33 @@ exports.digitalSigning = async (req, res, next) => {
 exports.verifySignature = async (req, res, next) => {
   try {
     const { message, signature } = req.body;
-
     const userId = req.user.id;
+    const document_id = req.params.document_id;
     //here
-    // Step 1: Get rows from VariousParties for the current user
-    const variousParties = await models.VariousParties.findAll({
-      where: { user_id: userId },
+    const document = await models.Document.findOne({
+      where: { id: document_id },
     });
-    //
-
+    if (!document) {
+      return res
+        .status(400)
+        .json({ message: "there is no document with this id" });
+    }
+    // return res.json({ data: document.document });
+    // Step 1: Get rows from VariousParties for the current document
+    const variousParties = await models.VariousParties.findAll({
+      where: { document_id: document_id },
+      include: [
+        {
+          model: models.User,
+          include: [
+            {
+              model: models.PublicKey,
+            },
+          ],
+        },
+      ],
+    });
+    // return res.json({ variousParties });
     //
     const hash = sha256(message);
 
@@ -283,8 +301,7 @@ exports.verifySignature = async (req, res, next) => {
       isValid: isValid,
     });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(err);
   }
 };
 

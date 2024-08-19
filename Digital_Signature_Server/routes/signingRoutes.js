@@ -3,7 +3,7 @@ const router = express.Router();
 const signController = require("../controllers/digitalSigningController");
 const CertificateController = require("../controllers/digitalCertificateController");
 const multer = require("../util/multer");
-const userAuth = require("../middlewares/userAuthMiddleware");
+const isUser = require("../middlewares/userAuthMiddleware");
 const Validator = require("../middlewares/validators/userValidationMiddleware");
 
 // router.post("/encryptionRSA", signController.encryptionRSA);
@@ -22,11 +22,15 @@ router.post(
   signController.digitalSigning
 );
 
-router.post("/signature/VerifySignature", signController.verifySignature);
+router.post(
+  "/signature/VerifySignature/:document_id",
+  isUser,
+  signController.verifySignature
+);
 
 router.post(
   "/signature/signDocument",
-  userAuth,
+  isUser,
   multer.uploadDocument.single("document"),
   Validator.uploadDocument,
   signController.signDocument
@@ -34,7 +38,7 @@ router.post(
 
 router.put(
   "/signature/partySign/:document_id",
-  userAuth,
+  isUser,
   signController.partySign
 );
 
